@@ -3,4 +3,14 @@
 	width: 1rem;
 	font-weight: bold;
 	margin: 0;
+	border: 1px solid black;
+}
+
+.revealed {
+	background-color: darkgrey;
+}
+
+.not-revealed {
+	background-color: lightgrey;
+	box-shadow: inset 0 0 2px black;
 }

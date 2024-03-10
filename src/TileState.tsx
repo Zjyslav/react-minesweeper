@@ -1,5 +1,8 @@
 export interface TileState {
 	row: number;
 	col: number;
-	displaySymbol: string;
+	revealed: boolean;
+	hasMine: boolean;
+	hasFlag: boolean;
+	surroundingMines?: number;
 }

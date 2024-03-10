@@ -6,7 +6,7 @@ function App() {
 	return (
 		<div className='game'>
 			<TopBar />
-			<Board rows={10} cols={10} />
+			<Board rows={10} cols={10} mines={10} />
 		</div>
 	);
 }
