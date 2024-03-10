@@ -3,7 +3,7 @@ import Tile from "./Tile";
 import { useState } from "react";
 import { TileState } from "./TileState";
 
-type BoardProps = {
+interface BoardProps {
 	rows: number;
 	cols: number;
 };
