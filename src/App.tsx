@@ -201,9 +201,11 @@ function App() {
 	}
 
 	return (
-		<div className='game'>
-			<TopBar game={game} time={stopwatch.time} onReset={handleReset} />
-			<Board game={game} onTileLeftClick={handleTileLeftClick} onTileRightClick={handleTileRightClick} />
+		<div className='game-container'>
+			<div className='game'>
+				<TopBar game={game} time={stopwatch.time} onReset={handleReset} />
+				<Board game={game} onTileLeftClick={handleTileLeftClick} onTileRightClick={handleTileRightClick} />
+			</div>
 		</div>
 	);
 }
