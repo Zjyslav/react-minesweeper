@@ -12,7 +12,8 @@ function Tile({ tileState, onTileLeftClick, onTileRightClick }: TileProps) {
 		if (tileState.hasFlag) return "🚩";
 		if (tileState.hasMine && tileState.revealed) return "💣";
 		if (!tileState.revealed) return "";
-		return String(tileState.surroundingMines);
+		if (tileState.surroundingMines && tileState.surroundingMines > 0) return String(tileState.surroundingMines);
+		return "";
 	}
 
 	const symbol = getDisplaySymbol();
