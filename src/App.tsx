@@ -14,9 +14,9 @@ interface StopwatchState {
 }
 
 function App() {
-	const rows = 8;
-	const cols = 8;
-	const mines = 10;
+	const rows = 16;
+	const cols = 30;
+	const mines = 99;
 	const startingState = generateStartingGameState(rows, cols, mines);
 	const [game, setGame] = useState(startingState);
 	const startingStopwatchState: StopwatchState = generateStartingStopwatchState();
@@ -195,7 +195,7 @@ function App() {
 	}
 
 	function handleReset(): void {
-		setGame(generateStartingGameState(cols, rows, mines));
+		setGame(generateStartingGameState(rows, cols, mines));
 		handleStopwatchStop();
 		setStopwatch(generateStartingStopwatchState());
 	}
