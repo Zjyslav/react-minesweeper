@@ -13,7 +13,7 @@ function TopBar({ game, time }: TopBarProps) {
 
 	function calculateRemainignMines(): number {
 		if (game.status === "won") return 0;
-		let flags = game.tiles.filter((t) => t.hasFlag).length;
+		let flags = game.tiles.filter((t) => t.hasFlag && !t.revealed).length;
 
 		return game.mines - flags;
 	}
