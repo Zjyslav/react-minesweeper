@@ -14,18 +14,15 @@ interface StopwatchState {
 }
 
 function App() {
-	const startingState = generateStartingState(8, 8, 10);
+	const rows = 8;
+	const cols = 8;
+	const mines = 10;
+	const startingState = generateStartingGameState(rows, cols, mines);
 	const [game, setGame] = useState(startingState);
-	const startingStopwatchState: StopwatchState = {
-		time: 0,
-		isActive: false,
-		intervalId: 0,
-		startTime: 0,
-		stopTime: 0,
-	};
+	const startingStopwatchState: StopwatchState = generateStartingStopwatchState();
 	const [stopwatch, setStopwatch] = useState(startingStopwatchState);
 
-	function generateStartingState(rows: number, cols: number, mines: number): GameState {
+	function generateStartingGameState(rows: number, cols: number, mines: number): GameState {
 		const tiles = generateStartingTiles(rows, cols, mines);
 		const state: GameState = {
 			rows: rows,
@@ -35,6 +32,16 @@ function App() {
 			status: "not over",
 		};
 		return state;
+	}
+
+	function generateStartingStopwatchState(): StopwatchState {
+		return {
+			time: 0,
+			isActive: false,
+			intervalId: 0,
+			startTime: 0,
+			stopTime: 0,
+		};
 	}
 
 	function generateStartingTiles(rows: number, cols: number, mines: number): TileState[] {
@@ -187,9 +194,15 @@ function App() {
 		setStopwatch(state);
 	}
 
+	function handleReset(): void {
+		setGame(generateStartingGameState(cols, rows, mines));
+		handleStopwatchStop();
+		setStopwatch(generateStartingStopwatchState());
+	}
+
 	return (
 		<div className='game'>
-			<TopBar game={game} time={stopwatch.time} />
+			<TopBar game={game} time={stopwatch.time} onReset={handleReset} />
 			<Board game={game} onTileLeftClick={handleTileLeftClick} onTileRightClick={handleTileRightClick} />
 		</div>
 	);
