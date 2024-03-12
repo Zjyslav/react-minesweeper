@@ -9,6 +9,7 @@ interface TileProps {
 
 function Tile({ tileState, onTileLeftClick, onTileRightClick }: TileProps) {
 	function getDisplaySymbol(): string {
+		if (tileState.hasFlag && tileState.revealed && !tileState.hasMine) return "❌";
 		if (tileState.hasFlag) return "🚩";
 		if (tileState.hasMine && tileState.revealed) return "💣";
 		if (!tileState.revealed) return "";

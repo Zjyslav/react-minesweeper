@@ -5,9 +5,25 @@ import { useState } from "react";
 import { GameState } from "./GameState";
 import { TileState } from "./TileState";
 
+interface StopwatchState {
+	time: number;
+	isActive: boolean;
+	intervalId: number;
+	startTime: number;
+	stopTime: number;
+}
+
 function App() {
 	const startingState = generateStartingState(8, 8, 10);
 	const [game, setGame] = useState(startingState);
+	const startingStopwatchState: StopwatchState = {
+		time: 0,
+		isActive: false,
+		intervalId: 0,
+		startTime: 0,
+		stopTime: 0,
+	};
+	const [stopwatch, setStopwatch] = useState(startingStopwatchState);
 
 	function generateStartingState(rows: number, cols: number, mines: number): GameState {
 		const tiles = generateStartingTiles(rows, cols, mines);
@@ -16,6 +32,7 @@ function App() {
 			cols: cols,
 			mines: mines,
 			tiles: tiles,
+			status: "not over",
 		};
 		return state;
 	}
@@ -50,7 +67,6 @@ function App() {
 	}
 
 	function getSurroundingTiles(tile: TileState, tiles: TileState[], rows: number, cols: number): TileState[] {
-		console.log(tile);
 		const surroundingTiles: TileState[] = [];
 		if (tile.row > 1) surroundingTiles.push(tiles[calculateIndex(tile.row - 1, tile.col, cols)]);
 		if (tile.row < rows) surroundingTiles.push(tiles[calculateIndex(tile.row + 1, tile.col, cols)]);
@@ -69,16 +85,16 @@ function App() {
 
 	function countSurroundingMines(tile: TileState, tiles: TileState[], rows: number, cols: number): number {
 		const surroundingTiles = getSurroundingTiles(tile, tiles, rows, cols);
-		console.log(surroundingTiles);
 		return surroundingTiles.filter((t): t is TileState => t.hasMine).length;
 	}
 
 	function handleTileLeftClick(e: React.MouseEvent<HTMLButtonElement>, row: number, col: number): void {
 		e.preventDefault();
+		if (game.status !== "not over") return;
+		if (!stopwatch.isActive) handleStopwatchStart();
+
 		const newGameState: GameState = {
-			rows: game.rows,
-			cols: game.cols,
-			mines: game.mines,
+			...game,
 			tiles: game.tiles.slice(),
 		};
 		const tile: TileState = newGameState.tiles[calculateIndex(row, col, newGameState.cols)];
@@ -88,20 +104,20 @@ function App() {
 		if (!tile.hasMine) revealEmpty(tile, newGameState, true);
 
 		if (tile.hasMine) {
-			for (let tile of newGameState.tiles) {
-				tile.revealed = true;
-			}
+			handleGameLost(newGameState);
 		}
+
+		if (newGameState.tiles.filter((t) => !t.revealed).length === newGameState.mines) handleGameWon(newGameState);
 
 		setGame(newGameState);
 	}
 
 	function handleTileRightClick(e: React.MouseEvent<HTMLButtonElement>, row: number, col: number): void {
 		e.preventDefault();
+		if (game.status !== "not over") return;
+
 		const newGameState: GameState = {
-			rows: game.rows,
-			cols: game.cols,
-			mines: game.mines,
+			...game,
 			tiles: game.tiles.slice(),
 		};
 		const tile: TileState = newGameState.tiles[calculateIndex(row, col, newGameState.cols)];
@@ -111,6 +127,19 @@ function App() {
 		tile.hasFlag = !tile.hasFlag;
 
 		setGame(newGameState);
+	}
+
+	function handleGameLost(state: GameState) {
+		handleStopwatchStop();
+		for (let tile of state.tiles) {
+			tile.revealed = true;
+		}
+		state.status = "lost";
+	}
+
+	function handleGameWon(state: GameState) {
+		handleStopwatchStop();
+		state.status = "won";
 	}
 
 	function revealEmpty(tile: TileState, gameState: GameState, first: boolean): void {
@@ -127,9 +156,40 @@ function App() {
 		}
 	}
 
+	function handleStopwatchStart(): void {
+		if (stopwatch.isActive) return;
+		const state: StopwatchState = {
+			time: 0,
+			isActive: true,
+			intervalId: 0,
+			startTime: Date.now(),
+			stopTime: 0,
+		};
+		let id = setInterval(() => {
+			const elapsedMs = Date.now() - state.startTime;
+			state.time = elapsedMs;
+			state.intervalId = id;
+			setStopwatch({ ...state, time: elapsedMs, intervalId: id });
+		}, 100);
+		stopwatch.intervalId = id;
+		stopwatch.startTime = state.startTime;
+	}
+
+	function handleStopwatchStop(): void {
+		if (!stopwatch.isActive) return;
+		const state: StopwatchState = {
+			...stopwatch,
+			isActive: false,
+			stopTime: Date.now(),
+		};
+		clearInterval(state.intervalId);
+		state.time = state.stopTime - state.startTime;
+		setStopwatch(state);
+	}
+
 	return (
 		<div className='game'>
-			<TopBar />
+			<TopBar game={game} time={stopwatch.time} />
 			<Board game={game} onTileLeftClick={handleTileLeftClick} onTileRightClick={handleTileRightClick} />
 		</div>
 	);
