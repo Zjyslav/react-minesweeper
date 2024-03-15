@@ -1,9 +1,12 @@
 import "./App.css";
 import TopBar from "./TopBar";
 import Board from "./Board";
+import SettingsModal from "./SettingsModal";
 import { useState } from "react";
+import { useRef } from "react";
 import { GameState } from "./GameState";
 import { TileState } from "./TileState";
+import { Settings } from "./SettingsModal";
 
 interface StopwatchState {
 	time: number;
@@ -14,20 +17,20 @@ interface StopwatchState {
 }
 
 function App() {
-	const rows = 16;
-	const cols = 30;
-	const mines = 99;
-	const startingState = generateStartingGameState(rows, cols, mines);
+	const defaults: Settings = { rows: 8, cols: 8, mines: 10 };
+	const [settings, setSettings] = useState(defaults);
+	const startingState = generateStartingGameState(settings);
 	const [game, setGame] = useState(startingState);
 	const startingStopwatchState: StopwatchState = generateStartingStopwatchState();
 	const [stopwatch, setStopwatch] = useState(startingStopwatchState);
+	const settingsDialogRef: React.RefObject<HTMLDialogElement> = useRef(null);
 
-	function generateStartingGameState(rows: number, cols: number, mines: number): GameState {
-		const tiles = generateStartingTiles(rows, cols, mines);
+	function generateStartingGameState(settings: Settings): GameState {
+		const tiles = generateStartingTiles(settings);
 		const state: GameState = {
-			rows: rows,
-			cols: cols,
-			mines: mines,
+			rows: settings.rows,
+			cols: settings.cols,
+			mines: settings.mines,
 			tiles: tiles,
 			status: "not over",
 		};
@@ -44,14 +47,14 @@ function App() {
 		};
 	}
 
-	function generateStartingTiles(rows: number, cols: number, mines: number): TileState[] {
+	function generateStartingTiles(settings: Settings): TileState[] {
 		const tiles: TileState[] = [];
-		let mineIndexes = Array.from(Array(rows * cols).keys())
+		let mineIndexes = Array.from(Array(settings.rows * settings.cols).keys())
 			.sort(() => 0.5 - Math.random())
-			.slice(-mines);
+			.slice(-settings.mines);
 		let i = 0;
-		for (let r = 1; r <= rows; r++) {
-			for (let c = 1; c <= cols; c++) {
+		for (let r = 1; r <= settings.rows; r++) {
+			for (let c = 1; c <= settings.cols; c++) {
 				const state: TileState = {
 					row: r,
 					col: c,
@@ -64,7 +67,7 @@ function App() {
 			}
 		}
 		for (const tile of tiles) {
-			tile.surroundingMines = countSurroundingMines(tile, tiles, rows, cols);
+			tile.surroundingMines = countSurroundingMines(tile, tiles, settings.rows, settings.cols);
 		}
 		return tiles;
 	}
@@ -195,18 +198,39 @@ function App() {
 	}
 
 	function handleReset(): void {
-		setGame(generateStartingGameState(rows, cols, mines));
+		setGame(generateStartingGameState(settings));
 		handleStopwatchStop();
 		setStopwatch(generateStartingStopwatchState());
 	}
 
+	function handleApplySettings(newSettings: Settings): void {
+		settings.cols = newSettings.cols;
+		settings.rows = newSettings.rows;
+		settings.mines = newSettings.mines;
+		setSettings(newSettings);
+		handleReset();
+		settingsDialogRef.current?.close();
+	}
+
+	function handleShowSettingsModal(): void {
+		settingsDialogRef.current?.showModal();
+	}
+
 	return (
-		<div className='game-container'>
-			<div className='game'>
-				<TopBar game={game} time={stopwatch.time} onReset={handleReset} />
-				<Board game={game} onTileLeftClick={handleTileLeftClick} onTileRightClick={handleTileRightClick} />
+		<>
+			<SettingsModal onApplySettings={handleApplySettings} defaults={settings} ref={settingsDialogRef} />
+			<div className='game-container'>
+				<div className='game'>
+					<TopBar
+						game={game}
+						time={stopwatch.time}
+						onReset={handleReset}
+						onSettingsClick={handleShowSettingsModal}
+					/>
+					<Board game={game} onTileLeftClick={handleTileLeftClick} onTileRightClick={handleTileRightClick} />
+				</div>
 			</div>
-		</div>
+		</>
 	);
 }
 

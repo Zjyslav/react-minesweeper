@@ -1,0 +1,8 @@
+.settings-dialog {
+	font-size: 0.5rem;
+}
+
+.settings-dialog::backdrop {
+	background-color: black;
+	opacity: 75%;
+}
