@@ -1,5 +1,6 @@
 import "./SettingsModal.css";
 import { forwardRef } from "react";
+import { useRef } from "react";
 
 export interface Settings {
 	rows: number;
@@ -9,14 +10,30 @@ export interface Settings {
 
 interface SettingsModalProps {
 	onApplySettings: (settings: Settings) => void;
+	onCancel: (settings: Settings) => void;
 	defaults: Settings;
 }
 
 const SettingsModal = forwardRef(function SettingsModal(
-	{ onApplySettings, defaults }: SettingsModalProps,
+	{ onApplySettings, onCancel, defaults }: SettingsModalProps,
 	dialogRef: React.ForwardedRef<HTMLDialogElement>
 ) {
 	const settings: Settings = { ...defaults };
+	const rowsInputRef: React.RefObject<HTMLInputElement> = useRef<HTMLInputElement>(null);
+	const colsInputRef: React.RefObject<HTMLInputElement> = useRef<HTMLInputElement>(null);
+	const minesInputRef: React.RefObject<HTMLInputElement> = useRef<HTMLInputElement>(null);
+
+	function resetToDefaults() {
+		if (rowsInputRef.current) {
+			rowsInputRef.current.value = String(settings.rows);
+		}
+		if (colsInputRef.current) {
+			colsInputRef.current.value = String(settings.cols);
+		}
+		if (minesInputRef.current) {
+			minesInputRef.current.value = String(settings.mines);
+		}
+	}
 
 	return (
 		<dialog className='settings-dialog' ref={dialogRef}>
@@ -26,6 +43,7 @@ const SettingsModal = forwardRef(function SettingsModal(
 					<input
 						id='rows'
 						type='number'
+						ref={rowsInputRef}
 						defaultValue={defaults.rows}
 						onChange={(e) => (settings.rows = Number(e.target.value))}
 						min={8}
@@ -37,6 +55,7 @@ const SettingsModal = forwardRef(function SettingsModal(
 					<input
 						id='cols'
 						type='number'
+						ref={colsInputRef}
 						defaultValue={defaults.cols}
 						onChange={(e) => (settings.cols = Number(e.target.value))}
 						min={8}
@@ -48,6 +67,7 @@ const SettingsModal = forwardRef(function SettingsModal(
 					<input
 						id='mines'
 						type='number'
+						ref={minesInputRef}
 						defaultValue={defaults.mines}
 						onChange={(e) => (settings.mines = Number(e.target.value))}
 						min={10}
@@ -57,6 +77,15 @@ const SettingsModal = forwardRef(function SettingsModal(
 				<div>
 					<button type='button' onClick={() => onApplySettings(settings)}>
 						Save
+					</button>
+					<button
+						type='button'
+						onClick={() => {
+							onCancel(settings);
+							resetToDefaults();
+						}}
+					>
+						Cancel
 					</button>
 				</div>
 			</form>

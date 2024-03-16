@@ -216,9 +216,21 @@ function App() {
 		settingsDialogRef.current?.showModal();
 	}
 
+	function handleCancelSettings(newSettings: Settings): void {
+		newSettings.cols = settings.cols;
+		newSettings.rows = settings.rows;
+		newSettings.mines = settings.mines;
+		settingsDialogRef.current?.close();
+	}
+
 	return (
 		<>
-			<SettingsModal onApplySettings={handleApplySettings} defaults={settings} ref={settingsDialogRef} />
+			<SettingsModal
+				onApplySettings={handleApplySettings}
+				onCancel={handleCancelSettings}
+				defaults={settings}
+				ref={settingsDialogRef}
+			/>
 			<div className='game-container'>
 				<div className='game'>
 					<TopBar
