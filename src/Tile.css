@@ -2,15 +2,17 @@
 	height: 1rem;
 	width: 1rem;
 	font-weight: bold;
-	margin: 0;
+	margin: 0.03rem;
 	border: 1px solid black;
+	border-radius: 0.1rem;
 }
 
 .revealed {
-	background-color: darkgrey;
+	background-color: #6371a0;
+	color: white;
 }
 
 .not-revealed {
-	background-color: lightgrey;
-	box-shadow: inset 0 0 2px black;
+	background-color: #94b2d4;
+	box-shadow: inset 0 0 1px black;
 }

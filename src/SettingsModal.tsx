@@ -74,7 +74,7 @@ const SettingsModal = forwardRef(function SettingsModal(
 						max={9999}
 					/>
 				</div>
-				<div>
+				<div className='settings-row'>
 					<button type='button' onClick={() => onApplySettings(settings)}>
 						Save
 					</button>
