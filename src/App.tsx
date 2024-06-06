@@ -101,7 +101,6 @@ function App() {
 	function handleTileLeftClick(e: React.MouseEvent<HTMLButtonElement>, row: number, col: number): void {
 		e.preventDefault();
 		if (game.status !== "not over") return;
-		if (!stopwatch.isActive) handleStopwatchStart();
 
 		const newGameState: GameState = {
 			...game,
@@ -111,7 +110,10 @@ function App() {
 
 		if (tile.hasFlag || tile.revealed) return;
 
-		if (!tile.hasMine) revealEmpty(tile, newGameState, true);
+		if (!tile.hasMine) {
+			if (!stopwatch.isActive) handleStopwatchStart();
+			revealEmpty(tile, newGameState, true);
+		}
 
 		if (tile.hasMine) {
 			handleGameLost(newGameState);
